@@ -72,11 +72,9 @@ final public class FirebaseSignInWithEmailAndPasswordController {
         do {
             return try await Auth.auth().signIn(withEmail: email, password: password)
         } catch {
-            if let error = error as NSError?, let code = FirestoreErrorCode.Code(rawValue: error.code) {
-                print("code: \(code)")
-                if code == .notFound {
-                    return nil
-//                    return try await createFirebaseUser(email: email, password: password)
+            if let error = error as NSError?, let code = AuthErrorCode(rawValue: error.code) {
+                if code == .invalidCredential {
+                    return try await createFirebaseUser(email: email, password: password)
                 } else {
                     throw error
                 }

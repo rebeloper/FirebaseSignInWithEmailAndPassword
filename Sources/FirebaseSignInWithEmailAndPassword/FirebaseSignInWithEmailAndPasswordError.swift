@@ -10,6 +10,7 @@ import Foundation
 public enum FirebaseSignInWithEmailAndPasswordError: Error {
     case noAuthDataResult
     case noCurrentUser
+    case noCurrentUserEmail
     case noCurrentUserLastSignInDate
 }
 
@@ -25,6 +26,11 @@ extension FirebaseSignInWithEmailAndPasswordError: LocalizedError {
             return NSLocalizedString(
                 "The Current User is missing.",
                 comment: "No Current User"
+            )
+        case .noCurrentUserEmail:
+            return NSLocalizedString(
+                "The Current User email is missing.",
+                comment: "No Current User Email"
             )
         case .noCurrentUserLastSignInDate:
             return NSLocalizedString(

@@ -20,6 +20,9 @@ final public class FirebaseSignInWithEmailAndPasswordController {
     public var user: User?
     
     /// Authenticates the user into Firebase Authentication with Sign in with email and password.
+    /// - Parameters:
+    ///    - email: Email
+    ///    - password: Password
     public func authenticate(email: String, password: String) async {
         do {
             try await authenticateFirebaseUser(email: email, password: password)
@@ -37,8 +40,78 @@ final public class FirebaseSignInWithEmailAndPasswordController {
         }
     }
     
+    /// Initiates a password reset for the given email address
+    /// - Parameters:
+    ///    - email: The email to sent the request to.
+    public func sendResetPasswordEmail(to email: String) async {
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+        } catch {
+            NotificationCenter.post(error: error)
+        }
+    }
+    
+    /// Initiates a password reset for the user's email address
+    public func sendResetPasswordEmail() async {
+        do {
+            guard let user = Auth.auth().currentUser else {
+                throw FirebaseSignInWithEmailAndPasswordError.noCurrentUser
+            }
+            guard let email = user.email else {
+                throw FirebaseSignInWithEmailAndPasswordError.noCurrentUserEmail
+            }
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+        } catch {
+            NotificationCenter.post(error: error)
+        }
+    }
+    
+    /// Send an email to verify the ownership of the account then update to the new email.
+    /// - Parameters:
+    ///   - email: The email to be updated to.
+    public func sendEmailVerification(beforeUpdatingEmail email: String) async {
+        do {
+            guard let user = Auth.auth().currentUser else {
+                throw FirebaseSignInWithEmailAndPasswordError.noCurrentUser
+            }
+            try await user.sendEmailVerification(beforeUpdatingEmail: email)
+        } catch {
+            NotificationCenter.post(error: error)
+        }
+    }
+    
+    /// Initiates a password reset for the given email address.
+    ///
+    /// This method does not throw an
+    /// error when there's no user account with the given email address and [Email Enumeration
+    /// Protection](https://cloud.google.com/identity-platform/docs/admin/email-enumeration-protection)
+    /// is enabled.
+    ///
+    /// - Parameter email: The email address of the user.
+    public func sendPasswordReset(withEmail email: String) async {
+        do {
+            try await Auth.auth().sendPasswordReset(withEmail: email)
+        } catch {
+            NotificationCenter.post(error: error)
+        }
+    }
+    
+    /// Resets the password given a code sent to the user outside of the app and a new password
+    /// for the user.
+    /// - Parameter code: The reset code.
+    ///  - Parameter newPassword: The new password.
+    public func confirmPasswordReset(withCode code: String, newPassword password: String) async {
+        do {
+            try await Auth.auth().confirmPasswordReset(withCode: code, newPassword: password)
+        } catch {
+            NotificationCenter.post(error: error)
+        }
+    }
+    
     /// Deletes the current user from Firebase Authentication.
     /// Make sure you remove all data associated to the user with this extension: https://extensions.dev/extensions/firebase/delete-user-data
+    /// - Parameters:
+    ///    - password: The account's password.
     public func deleteAccount(password: String) async {
         do {
             guard let user = Auth.auth().currentUser else {

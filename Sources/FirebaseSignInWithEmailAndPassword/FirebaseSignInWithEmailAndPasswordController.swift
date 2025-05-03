@@ -133,6 +133,16 @@ final public class FirebaseSignInWithEmailAndPasswordController {
         }
     }
     
+    @discardableResult
+    public func createUser(email: String, password: String) async throws -> AuthDataResult {
+        try await Auth.auth().createUser(withEmail: email, password: password)
+    }
+    
+    @discardableResult
+    public func signInUser(email: String, password: String) async throws -> AuthDataResult {
+        try await Auth.auth().signIn(withEmail: email, password: password)
+    }
+    
     // MARK: - Internal
     
     @discardableResult
